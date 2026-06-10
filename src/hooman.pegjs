@@ -30,7 +30,7 @@ VariableDeclaration
     }
 
 Assignment
-  = "store" _ "<" val:Expression ">" _ "in" _ tgt:TargetNode _ {
+  = "store" _ "<" val:Expression ">" _ "in" _ tgt:Target _ {
       return { type: "Assignment", target: tgt, value: val };
     }
 
@@ -41,7 +41,7 @@ FunctionDeclaration
     }
 
 FunctionCall
-  = "call" _ "<" tgt:TargetNode ">" args:WithArgs? _ {
+  = "call" _ "<" tgt:Target ">" args:WithArgs? _ {
       return { type: "FunctionCall", target: tgt, args: args ? args : [] };
     }
 
@@ -52,20 +52,25 @@ PrintStatement
 PrintContent
   = parts:(PrintVar / PrintText)* { return parts; }
 
-PrintVar = "<" tgt:TargetNode ">" { return { type: "PrintVar", target: tgt }; }
+PrintVar = "<" tgt:Target ">" { return { type: "PrintVar", target: tgt }; }
 PrintText = chars:[^<>]+ { return { type: "PrintText", value: chars.join("") }; }
 
-// --- NESTED PATH HELPERS (NEW) ---
-TargetNode
-  = parts:PropertyChain {
-      if (parts.length === 1) return { type: "Identifier", name: parts[0] };
-      return { type: "Path", parts: parts };
+
+// --- NESTED PATH HELPERS (UPDATED) ---
+Target
+  = TargetPath
+  / id:Identifier { return { type: "Identifier", name: id }; }
+
+TargetPath
+  = id:Identifier _ "<" _ prop:PropertyChain _ ">" {
+      return { type: "Path", parts: [id === "self" ? "this" : id].concat(prop) };
   }
 
 PropertyChain
   = id:Identifier rest:(_ "<" _ p:PropertyChain _ ">" { return p; })? {
-      return [id === "self" ? "this" : id].concat(rest || []);
+      return [id].concat(rest || []);
   }
+
 
 // --- ARGUMENT HELPERS ---
 WithArgs = _ "with" _ "<" args:ArgumentList ">" { return args; }
@@ -89,11 +94,11 @@ ArgTail1 = _ "," _ "<" expr:Expression ">" { return expr; }
 ArgTail2 = _ "," _ expr:Expression { return expr; }
 
 Expression
-  = FunctionCall    // <--- Added so functions can be used as values!
+  = FunctionCall
   / NumberLiteral
   / BooleanLiteral
-  / TargetNode
-  / AnyText
+  / TargetPath    // <--- ONLY matches paths with brackets now!
+  / AnyText       // <--- Matches flat strings and single variables!
 
 NumberLiteral = val:$([0-9]+) { return { type: "Literal", value: val, rawType: "number" }; }
 BooleanLiteral = val:("true" / "false") { return { type: "Literal", value: val, rawType: "boolean" }; }

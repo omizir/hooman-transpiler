@@ -69,5 +69,5 @@ call <vieToDbx<setDuration>> with <6>
 call <vieToDbx<setTakeoff>> with  <VIE>
 call <vieToDbx<setDestination>> with  <DBX>
 
-create <Airport> as <viennaAirport> with <<Vienna>, <vieToDbx>>
+create <Airport> as <viennaAirport> with <<Vienna International Airport>, <vieToDbx>>
 call <viennaAirport<print>>

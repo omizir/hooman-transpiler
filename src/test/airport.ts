@@ -55,6 +55,6 @@ vieToDbx.setTakeoff(`VIE`);
 
 vieToDbx.setDestination(`DBX`);
 
-const viennaAirport: Airport = new Airport(`Vienna`, vieToDbx);
+const viennaAirport: Airport = new Airport(`Vienna International Airport`, vieToDbx);
 
 viennaAirport.print();
