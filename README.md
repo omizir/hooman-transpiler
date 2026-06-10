@@ -1,1 +1,1 @@
-run transpiler using `ts-node index.ts [filename].hmn`
+run transpiler using `npx tsx .\src\index.ts [filename].hmn`
