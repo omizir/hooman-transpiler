@@ -1,0 +1,73 @@
+template <Flight>
+shape
+    <text> as <flightnumber>
+    <number> as <duration>
+    <text> as <takeoff>
+    <text> as <destination>
+
+    assemble with <text as fnr, number as dur, text as tkf, text as dst>
+    do
+        store <fnr> in self<flightnumber>
+        store <dur> in self<duration>
+        store <tkf> in self<takeoff>
+        store <dst> in self<destination>
+    end
+
+    callable as <print>
+    do
+        print <
+            Flight: <self<flightnumber>> \n
+            From: <self<takeoff>> To: <self<destination>> \n
+            Duration: <self<duration>> h
+        >
+    end
+
+    callable as <setFlightnumber> with <text as fnr>
+    do
+        store <fnr> in self<flightnumber>
+    end
+
+    callable as <setDuration> with <number as dur>
+    do
+        store <dur> in self<duration>
+    end
+
+    callable as <setTakeoff> with <text as tkf>
+    do
+        store <tkf> in self<takeoff>
+    end
+
+    callable as <setDestination> with <text as dst>
+    do
+        store <dst> in self<destination>
+    end
+end
+
+template <Airport>
+shape
+    <text> as <name>
+    <Flight> as <current_flight>
+
+    assemble with <text as name, Flight as current_flight>
+    do
+        store <name> in self<name>
+        store <current_flight> in self<current_flight>
+    end
+
+    callable as <print>
+    do
+        print <
+            Airport <self<name>> \n
+            Current Flight: \n
+        >
+        call <self<current_flight<print>>>
+    end
+end
+
+create <Flight> as <vieToDbx> with <<F01>, <2>, <CGN>, <VIE>>
+call <vieToDbx<setDuration>> with <6>
+call <vieToDbx<setTakeoff>> with  <VIE>
+call <vieToDbx<setDestination>> with  <DBX>
+
+create <Airport> as <viennaAirport> with <<Vienna>, <vieToDbx>>
+call <viennaAirport<print>>

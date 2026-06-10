@@ -30,7 +30,7 @@ VariableDeclaration
     }
 
 Assignment
-  = "store" _ "<" val:Expression ">" _ "in" _ tgt:Target _ {
+  = "store" _ "<" val:Expression ">" _ "in" _ tgt:TargetNode _ {
       return { type: "Assignment", target: tgt, value: val };
     }
 
@@ -41,7 +41,7 @@ FunctionDeclaration
     }
 
 FunctionCall
-  = "call" _ "<" tgt:CallTarget ">" args:WithArgs? _ {
+  = "call" _ "<" tgt:TargetNode ">" args:WithArgs? _ {
       return { type: "FunctionCall", target: tgt, args: args ? args : [] };
     }
 
@@ -52,18 +52,22 @@ PrintStatement
 PrintContent
   = parts:(PrintVar / PrintText)* { return parts; }
 
-PrintVar = "<" tgt:Target ">" { return { type: "PrintVar", target: tgt }; }
+PrintVar = "<" tgt:TargetNode ">" { return { type: "PrintVar", target: tgt }; }
 PrintText = chars:[^<>]+ { return { type: "PrintText", value: chars.join("") }; }
 
-// --- HELPERS & TOKENS ---
-Target
-  = "self<" id:Identifier ">" { return { type: "MemberExpression", object: "this", property: id }; }
-  / id:Identifier { return { type: "Identifier", name: id }; }
+// --- NESTED PATH HELPERS (NEW) ---
+TargetNode
+  = parts:PropertyChain {
+      if (parts.length === 1) return { type: "Identifier", name: parts[0] };
+      return { type: "Path", parts: parts };
+  }
 
-CallTarget
-  = obj:Identifier "<" method:Identifier ">" { return { type: "MemberExpression", object: obj, property: method }; }
-  / id:Identifier { return { type: "Identifier", name: id }; }
+PropertyChain
+  = id:Identifier rest:(_ "<" _ p:PropertyChain _ ">" { return p; })? {
+      return [id === "self" ? "this" : id].concat(rest || []);
+  }
 
+// --- ARGUMENT HELPERS ---
 WithArgs = _ "with" _ "<" args:ArgumentList ">" { return args; }
 WithParams = _ "with" _ "<" params:ParamList ">" { return params; }
 
@@ -78,29 +82,27 @@ Param
 
 ArgumentList
   = "<" head:Expression ">" tail:ArgTail1* { return [head, ...tail]; }
-  / head:Expression tail:ArgTail2* { return [head, ...tail]; } 
+  / head:Expression tail:ArgTail2* { return [head, ...tail]; }
   / "" { return []; }
 
 ArgTail1 = _ "," _ "<" expr:Expression ">" { return expr; }
 ArgTail2 = _ "," _ expr:Expression { return expr; }
 
 Expression
-  = NumberLiteral
+  = FunctionCall    // <--- Added so functions can be used as values!
+  / NumberLiteral
   / BooleanLiteral
-  / "self<" id:Identifier ">" { return { type: "MemberExpression", object: "this", property: id }; }
+  / TargetNode
   / AnyText
 
 NumberLiteral = val:$([0-9]+) { return { type: "Literal", value: val, rawType: "number" }; }
 BooleanLiteral = val:("true" / "false") { return { type: "Literal", value: val, rawType: "boolean" }; }
 
-// Grabs everything until the closing bracket or comma
 AnyText = chars:$([^<>,]+) {
     let trimmed = chars.trim();
-    // If it is exactly one word with valid variable characters, assume it might be a variable
     if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(trimmed)) {
         return { type: "Identifier", name: trimmed };
     }
-    // If it has spaces or symbols, it MUST be a string literal
     return { type: "Literal", value: `\`${trimmed}\``, rawType: "text" };
 }
 

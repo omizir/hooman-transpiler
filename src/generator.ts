@@ -62,11 +62,21 @@ export class HoomanGenerator {
                 return `let ${node.id}: ${this.mapType(node.varType)}${initVal};`;
 
             case 'Assignment':
-                return `${this.generate(node.target)} = ${this.generate(node.value)};`;
+                // Always treat the assignment target physically as code, never as a string fallback
+                const tgtStr = node.target.type === 'Identifier' ? node.target.name : this.generate(node.target);
+                return `${tgtStr} = ${this.generate(node.value)};`;
 
             case 'FunctionCall':
                 const args = node.args.map((a: any) => this.generate(a)).join(', ');
-                return `${this.generate(node.target)}(${args});`;
+                let callTgt = '';
+                if (node.target.type === 'Identifier') callTgt = node.target.name;
+                else if (node.target.type === 'Path') callTgt = node.target.parts.join('.');
+                else callTgt = this.generate(node.target);
+
+                return `${callTgt}(${args});`;
+
+            case 'Path':
+                return node.parts.join('.');
 
             case 'PrintStatement':
                 let templateString = node.content.map((part: any) => {
@@ -90,13 +100,9 @@ export class HoomanGenerator {
                 // Fallback for normal prints
                 return `console.log(\`${templateString}\`);`;
 
-            case 'MemberExpression':
-                return `${node.object}.${node.property}`;
-
             case 'Identifier':
-                // THE FIX: If the transpiler knows this word, it's a variable.
-                // If it doesn't know it, it must be a raw string from the user!
-                if (this.knownVariables.has(node.name)) {
+                // "this" should always be treated as code, alongside known variables
+                if (this.knownVariables.has(node.name) || node.name === "this") {
                     return node.name;
                 } else {
                     return `\`${node.name}\``;
