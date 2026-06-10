@@ -1,0 +1,25 @@
+template <Dog>
+shape
+    <text> as <name>
+    <number> as <age>
+    <text> as <race>
+
+    assemble with <text as name, number as age, text as race>
+    do
+        store <name> in self<name>
+        store <age> in self<age>
+        store <race> in self<race>
+    end
+
+    callable as <print>
+    do
+        print <
+            Name: <self<name>> \n
+            Age: <self<age>> \n
+            Race: <self<race>>
+        >
+    end
+end
+
+create <Dog> as <charlie> with <<Charlie>, <5>, <Golden Retriever>>
+call <charlie<print>>

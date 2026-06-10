@@ -1,0 +1,1 @@
+run transpiler using `ts-node index.ts [filename].hmn`
