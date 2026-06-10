@@ -1,10 +1,3 @@
-{
-  // Helper to extract nested arrays
-  function extractList(list, index) {
-    return list.map(function(e) { return e[index]; });
-  }
-}
-
 Program
   = _ stmts:Statement* _ { return { type: "Program", body: stmts }; }
 
@@ -32,8 +25,8 @@ Constructor
 
 // --- VARIABLES & ASSIGNMENTS ---
 VariableDeclaration
-  = "create" _ "<" t:Type ">" _ "as" _ "<" id:Identifier ">" init:(_ "with" _ "<" ArgumentList ">")? _ {
-      return { type: "VariableDeclaration", varType: t, id, init: init ? init[3] : null };
+  = "create" _ "<" t:Type ">" _ "as" _ "<" id:Identifier ">" init:WithArgs? _ {
+      return { type: "VariableDeclaration", varType: t, id, init };
     }
 
 Assignment
@@ -43,13 +36,13 @@ Assignment
 
 // --- FUNCTIONS ---
 FunctionDeclaration
-  = "callable" _ ret:("<" Type ">" _)? "as" _ "<" id:Identifier ">" params:(_ "with" _ "<" ParamList ">")? _ "do" _ body:Statement* "end" _ {
-      return { type: "FunctionDeclaration", id, returnType: ret ? ret[1] : "void", params: params ? params[3] : [], body };
+  = "callable" _ ret:("<" Type ">" _)? "as" _ "<" id:Identifier ">" params:WithParams? _ "do" _ body:Statement* "end" _ {
+      return { type: "FunctionDeclaration", id, returnType: ret ? ret[1] : "void", params: params ? params : [], body };
     }
 
 FunctionCall
-  = "call" _ "<" tgt:CallTarget ">" args:(_ "with" _ "<" ArgumentList ">")? _ {
-      return { type: "FunctionCall", target: tgt, args: args ? args[3] : [] };
+  = "call" _ "<" tgt:CallTarget ">" args:WithArgs? _ {
+      return { type: "FunctionCall", target: tgt, args: args ? args : [] };
     }
 
 // --- PRINTING ---
@@ -71,29 +64,47 @@ CallTarget
   = obj:Identifier "<" method:Identifier ">" { return { type: "MemberExpression", object: obj, property: method }; }
   / id:Identifier { return { type: "Identifier", name: id }; }
 
+WithArgs = _ "with" _ "<" args:ArgumentList ">" { return args; }
+WithParams = _ "with" _ "<" params:ParamList ">" { return params; }
+
 ParamList
-  = head:Param tail:(_ "," _ Param)* { return [head, ...extractList(tail, 3)]; }
+  = head:Param tail:ParamTail* { return [head, ...tail]; }
   / "" { return []; }
+
+ParamTail = _ "," _ param:Param { return param; }
 
 Param
   = t:Type _ "as" _ id:Identifier { return { type: "Parameter", paramType: t, id }; }
 
 ArgumentList
-  = "<" head:Expression ">" tail:(_ "," _ "<" Expression ">")* { return [head, ...extractList(tail, 3)]; }
-  / head:Expression tail:(_ "," _ Expression)* { return [head, ...extractList(tail, 3)]; } // fallback for normal args
+  = "<" head:Expression ">" tail:ArgTail1* { return [head, ...tail]; }
+  / head:Expression tail:ArgTail2* { return [head, ...tail]; } 
   / "" { return []; }
+
+ArgTail1 = _ "," _ "<" expr:Expression ">" { return expr; }
+ArgTail2 = _ "," _ expr:Expression { return expr; }
 
 Expression
   = NumberLiteral
   / BooleanLiteral
-  / StringLiteral
-  / Target
+  / "self<" id:Identifier ">" { return { type: "MemberExpression", object: "this", property: id }; }
+  / AnyText
 
-NumberLiteral = digits:[0-9]+ { return { type: "Literal", value: digits.join(""), rawType: "number" }; }
+NumberLiteral = val:$([0-9]+) { return { type: "Literal", value: val, rawType: "number" }; }
 BooleanLiteral = val:("true" / "false") { return { type: "Literal", value: val, rawType: "boolean" }; }
-StringLiteral = chars:[a-zA-Z0-9_ ]+ { return { type: "Literal", value: `\`${chars.join("")}\``, rawType: "text" }; }
+
+// Grabs everything until the closing bracket or comma
+AnyText = chars:$([^<>,]+) {
+    let trimmed = chars.trim();
+    // If it is exactly one word with valid variable characters, assume it might be a variable
+    if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(trimmed)) {
+        return { type: "Identifier", name: trimmed };
+    }
+    // If it has spaces or symbols, it MUST be a string literal
+    return { type: "Literal", value: `\`${trimmed}\``, rawType: "text" };
+}
 
 Type = "text" / "number" / "boolean" / "void" / Identifier
-Identifier = chars:[a-zA-Z_][a-zA-Z0-9_]* { return chars[0] + chars[1].join(""); }
+Identifier = id:$([a-zA-Z_][a-zA-Z0-9_]*) { return id; }
 
 _ "whitespace" = [ \t\n\r]*
