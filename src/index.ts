@@ -13,6 +13,8 @@ try {
     
     // 1. Parse string into AST
     const ast = parse(code);
+    const astFile = inputFile.replace('.hmn', '.ast.json');
+    fs.writeFileSync(astFile, JSON.stringify(ast));
     
     // 2. Generate TS from AST
     const generator = new HoomanGenerator();

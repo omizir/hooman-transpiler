@@ -1,0 +1,245 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ClassDeclaration",
+      "id": "Flight",
+      "properties": [
+        { "type": "Property", "propType": "text", "id": "flightnumber" },
+        { "type": "Property", "propType": "number", "id": "duration" },
+        { "type": "Property", "propType": "text", "id": "takeoff" },
+        { "type": "Property", "propType": "text", "id": "destination" }
+      ],
+      "constructor": {
+        "type": "Constructor",
+        "params": [
+          { "type": "Parameter", "paramType": "text", "id": "fnr" },
+          { "type": "Parameter", "paramType": "number", "id": "dur" },
+          { "type": "Parameter", "paramType": "text", "id": "tkf" },
+          { "type": "Parameter", "paramType": "text", "id": "dst" }
+        ],
+        "body": [
+          {
+            "type": "Assignment",
+            "target": { "type": "Path", "parts": ["this", "flightnumber"] },
+            "value": { "type": "Identifier", "name": "fnr" }
+          },
+          {
+            "type": "Assignment",
+            "target": { "type": "Path", "parts": ["this", "duration"] },
+            "value": { "type": "Identifier", "name": "dur" }
+          },
+          {
+            "type": "Assignment",
+            "target": { "type": "Path", "parts": ["this", "takeoff"] },
+            "value": { "type": "Identifier", "name": "tkf" }
+          },
+          {
+            "type": "Assignment",
+            "target": { "type": "Path", "parts": ["this", "destination"] },
+            "value": { "type": "Identifier", "name": "dst" }
+          }
+        ]
+      },
+      "methods": [
+        {
+          "type": "FunctionDeclaration",
+          "id": "print",
+          "returnType": "void",
+          "params": [],
+          "body": [
+            {
+              "type": "PrintStatement",
+              "content": [
+                { "type": "PrintText", "value": "\n            Flight: " },
+                {
+                  "type": "PrintVar",
+                  "target": {
+                    "type": "Path",
+                    "parts": ["this", "flightnumber"]
+                  }
+                },
+                { "type": "PrintText", "value": " \\n\n            From: " },
+                {
+                  "type": "PrintVar",
+                  "target": { "type": "Path", "parts": ["this", "takeoff"] }
+                },
+                { "type": "PrintText", "value": " To: " },
+                {
+                  "type": "PrintVar",
+                  "target": { "type": "Path", "parts": ["this", "destination"] }
+                },
+                {
+                  "type": "PrintText",
+                  "value": " \\n\n            Duration: "
+                },
+                {
+                  "type": "PrintVar",
+                  "target": { "type": "Path", "parts": ["this", "duration"] }
+                },
+                { "type": "PrintText", "value": " h\n        " }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "FunctionDeclaration",
+          "id": "setFlightnumber",
+          "returnType": "void",
+          "params": [{ "type": "Parameter", "paramType": "text", "id": "fnr" }],
+          "body": [
+            {
+              "type": "Assignment",
+              "target": { "type": "Path", "parts": ["this", "flightnumber"] },
+              "value": { "type": "Identifier", "name": "fnr" }
+            }
+          ]
+        },
+        {
+          "type": "FunctionDeclaration",
+          "id": "setDuration",
+          "returnType": "void",
+          "params": [
+            { "type": "Parameter", "paramType": "number", "id": "dur" }
+          ],
+          "body": [
+            {
+              "type": "Assignment",
+              "target": { "type": "Path", "parts": ["this", "duration"] },
+              "value": { "type": "Identifier", "name": "dur" }
+            }
+          ]
+        },
+        {
+          "type": "FunctionDeclaration",
+          "id": "setTakeoff",
+          "returnType": "void",
+          "params": [{ "type": "Parameter", "paramType": "text", "id": "tkf" }],
+          "body": [
+            {
+              "type": "Assignment",
+              "target": { "type": "Path", "parts": ["this", "takeoff"] },
+              "value": { "type": "Identifier", "name": "tkf" }
+            }
+          ]
+        },
+        {
+          "type": "FunctionDeclaration",
+          "id": "setDestination",
+          "returnType": "void",
+          "params": [{ "type": "Parameter", "paramType": "text", "id": "dst" }],
+          "body": [
+            {
+              "type": "Assignment",
+              "target": { "type": "Path", "parts": ["this", "destination"] },
+              "value": { "type": "Identifier", "name": "dst" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ClassDeclaration",
+      "id": "Airport",
+      "properties": [
+        { "type": "Property", "propType": "text", "id": "name" },
+        { "type": "Property", "propType": "Flight", "id": "current_flight" }
+      ],
+      "constructor": {
+        "type": "Constructor",
+        "params": [
+          { "type": "Parameter", "paramType": "text", "id": "name" },
+          { "type": "Parameter", "paramType": "Flight", "id": "current_flight" }
+        ],
+        "body": [
+          {
+            "type": "Assignment",
+            "target": { "type": "Path", "parts": ["this", "name"] },
+            "value": { "type": "Identifier", "name": "name" }
+          },
+          {
+            "type": "Assignment",
+            "target": { "type": "Path", "parts": ["this", "current_flight"] },
+            "value": { "type": "Identifier", "name": "current_flight" }
+          }
+        ]
+      },
+      "methods": [
+        {
+          "type": "FunctionDeclaration",
+          "id": "print",
+          "returnType": "void",
+          "params": [],
+          "body": [
+            {
+              "type": "PrintStatement",
+              "content": [
+                { "type": "PrintText", "value": "\n            Airport " },
+                {
+                  "type": "PrintVar",
+                  "target": { "type": "Path", "parts": ["this", "name"] }
+                },
+                {
+                  "type": "PrintText",
+                  "value": " \\n\n            Current Flight: \\n\n        "
+                }
+              ]
+            },
+            {
+              "type": "FunctionCall",
+              "target": {
+                "type": "Path",
+                "parts": ["this", "current_flight", "print"]
+              },
+              "args": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "VariableDeclaration",
+      "varType": "Flight",
+      "id": "vieToDbx",
+      "init": [
+        { "type": "Identifier", "name": "F01" },
+        { "type": "Literal", "value": "2", "rawType": "number" },
+        { "type": "Identifier", "name": "CGN" },
+        { "type": "Identifier", "name": "VIE" }
+      ]
+    },
+    {
+      "type": "FunctionCall",
+      "target": { "type": "Path", "parts": ["vieToDbx", "setDuration"] },
+      "args": [{ "type": "Literal", "value": "6", "rawType": "number" }]
+    },
+    {
+      "type": "FunctionCall",
+      "target": { "type": "Path", "parts": ["vieToDbx", "setTakeoff"] },
+      "args": [{ "type": "Identifier", "name": "VIE" }]
+    },
+    {
+      "type": "FunctionCall",
+      "target": { "type": "Path", "parts": ["vieToDbx", "setDestination"] },
+      "args": [{ "type": "Identifier", "name": "DBX" }]
+    },
+    {
+      "type": "VariableDeclaration",
+      "varType": "Airport",
+      "id": "viennaAirport",
+      "init": [
+        {
+          "type": "Literal",
+          "value": "`Vienna International Airport`",
+          "rawType": "text"
+        },
+        { "type": "Identifier", "name": "vieToDbx" }
+      ]
+    },
+    {
+      "type": "FunctionCall",
+      "target": { "type": "Path", "parts": ["viennaAirport", "print"] },
+      "args": []
+    }
+  ]
+}
