@@ -46,28 +46,37 @@ end
 template <Airport>
 shape
     <text> as <name>
-    <Flight> as <current_flight>
+    <list of Flight> as <flights>
 
-    assemble with <text as name, Flight as current_flight>
+    assemble with <text as name, list of Flight as flights>
     do
         store <name> in self<name>
-        store <current_flight> in self<current_flight>
+        store <flights> in self<flights>
+    end
+
+    callable as <printFlights>
+    do
+        loop <self<flights>> as <flight>
+        do
+            call <flight<print>>
+        end
     end
 
     callable as <print>
     do
         print <
             Airport <self<name>> \n
-            Current Flight: \n
+            Flights: \n
+            ------------------------ \n
         >
-        call <self<current_flight<print>>>
+        call <self<printFlights>>
     end
 end
 
 create <Flight> as <vieToDbx> with <<F01>, <2>, <CGN>, <VIE>>
-call <vieToDbx<setDuration>> with <6>
-call <vieToDbx<setTakeoff>> with  <VIE>
-call <vieToDbx<setDestination>> with  <DBX>
+call <vieToDbx<setDuration>> with <<6>>
+call <vieToDbx<setTakeoff>> with  <<VIE>>
+call <vieToDbx<setDestination>> with  <<DBX>>
 
-create <Airport> as <viennaAirport> with <<Vienna International Airport>, <vieToDbx>>
+create <Airport> as <viennaAirport> with <<Vienna International Airport>, <<vieToDbx>>>
 call <viennaAirport<print>>

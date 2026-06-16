@@ -58,6 +58,27 @@ create <Dog> as <charlie> with <<Charlie>, <5>, <Golden Retriever>>
 call <charlie<print>>
 ```
 
+# ARRAYS
+- creating an array `create <list of type> as <array name> with <<value 0>, <value 1>, ...>`
+- accessing an array value `<item <index> of <array name>>`
+- modifying an array value `store <value> in item <index> of <array name>`
+- array methods:
+    - adding an element `add <value> to <array name>`
+    - removing an element `remove item <index> of <array name>`
+    - getting the length `length of <array name>`
+- call array native functions `call <array name<array function>>`
+
+Examples:
+```
+create <list of text> as <animals> with <<Dog>, <Bird>, <Horse>>
+print <item <0> of <animals>>
+store <Cat> in item <1> of <animals>
+add <Lion> to <animals>
+remove item <1> of <animals>
+print <length of <animals>>
+call <animals<pop>>
+```
+
 # MISCELLANEOUS
 - console logging `print <text>`
 
@@ -75,4 +96,13 @@ use <*> as <z> from <zod>
 
 ```
 self<name>
+```
+
+- for ... in loop `loop <array name> as <array item>`
+
+```
+loop <animals> as <animal>
+do
+    call <animal<print>>
+end
 ```

@@ -8,6 +8,9 @@ Statement
   / Assignment
   / FunctionCall
   / PrintStatement
+  / ArrayAddStatement      
+  / ArrayRemoveStatement   
+  / LoopStatement
 
 // --- CLASSES ---
 ClassDeclaration
@@ -34,6 +37,23 @@ Assignment
       return { type: "Assignment", target: tgt, value: val };
     }
 
+// --- ARRAY STATEMENTS ---
+ArrayAddStatement
+  = "add" _ "<" val:Expression ">" _ "to" _ "<" tgt:Target ">" _ {
+      return { type: "ArrayAdd", target: tgt, value: val };
+    }
+
+ArrayRemoveStatement
+  = "remove" _ "item" _ "<" idx:Expression ">" _ "from" _ "<" tgt:Target ">" _ {
+      return { type: "ArrayRemove", target: tgt, index: idx };
+    }
+
+// --- LOOPS (NEW) ---
+LoopStatement
+  = "loop" _ "<" list:Target ">" _ "as" _ "<" item:Identifier ">" _ "do" _ body:Statement* "end" _ {
+      return { type: "LoopStatement", list, iterator: item, body };
+    }
+
 // --- FUNCTIONS ---
 FunctionDeclaration
   = "callable" _ ret:("<" Type ">" _)? "as" _ "<" id:Identifier ">" params:WithParams? _ "do" _ body:Statement* "end" _ {
@@ -52,14 +72,23 @@ PrintStatement
 PrintContent
   = parts:(PrintVar / PrintText)* { return parts; }
 
-PrintVar = "<" tgt:Target ">" { return { type: "PrintVar", target: tgt }; }
+PrintVar 
+  = "<" tgt:Target ">" { return { type: "PrintVar", target: tgt }; }
+  / "<" tgt:ArrayLength ">" { return { type: "PrintVar", target: tgt }; }
+
 PrintText = chars:[^<>]+ { return { type: "PrintText", value: chars.join("") }; }
 
 
-// --- NESTED PATH HELPERS (UPDATED) ---
+// --- TARGETS & PATHS ---
 Target
-  = TargetPath
+  = ArrayAccess   
+  / TargetPath
   / id:Identifier { return { type: "Identifier", name: id }; }
+
+ArrayAccess
+  = "item" _ "<" idx:Expression ">" _ "of" _ "<" tgt:Target ">" {
+      return { type: "ArrayAccess", target: tgt, index: idx };
+    }
 
 TargetPath
   = id:Identifier _ "<" _ prop:PropertyChain _ ">" {
@@ -71,8 +100,7 @@ PropertyChain
       return [id].concat(rest || []);
   }
 
-
-// --- ARGUMENT HELPERS ---
+// --- ARGUMENT & PARAMETER HELPERS ---
 WithArgs = _ "with" _ "<" args:ArgumentList ">" { return args; }
 WithParams = _ "with" _ "<" params:ParamList ">" { return params; }
 
@@ -86,19 +114,35 @@ Param
   = t:Type _ "as" _ id:Identifier { return { type: "Parameter", paramType: t, id }; }
 
 ArgumentList
-  = "<" head:Expression ">" tail:ArgTail1* { return [head, ...tail]; }
-  / head:Expression tail:ArgTail2* { return [head, ...tail]; }
+  = head:ArgumentItem tail:ArgTail* { return [head, ...tail]; }
   / "" { return []; }
 
-ArgTail1 = _ "," _ "<" expr:Expression ">" { return expr; }
-ArgTail2 = _ "," _ expr:Expression { return expr; }
+ArgTail = _ "," _ item:ArgumentItem { return item; }
 
+ArgumentItem
+  = "<" expr:Expression ">" { return expr; }
+  / ArrayLiteral
+
+// --- EXPRESSIONS, VALUES & ARRAYS ---
 Expression
   = FunctionCall
+  / ArrayLength     
+  / ArrayAccess     
   / NumberLiteral
   / BooleanLiteral
-  / TargetPath    // <--- ONLY matches paths with brackets now!
-  / AnyText       // <--- Matches flat strings and single variables!
+  / TargetPath
+  / ArrayLiteral   
+  / AnyText       
+
+ArrayLength
+  = "length" _ "of" _ "<" tgt:Target ">" {
+      return { type: "ArrayLength", target: tgt };
+    }
+
+ArrayLiteral
+  = "<" items:ArgumentList ">" {
+      return { type: "ArrayLiteral", elements: items };
+    }
 
 NumberLiteral = val:$([0-9]+) { return { type: "Literal", value: val, rawType: "number" }; }
 BooleanLiteral = val:("true" / "false") { return { type: "Literal", value: val, rawType: "boolean" }; }
@@ -111,7 +155,12 @@ AnyText = chars:$([^<>,]+) {
     return { type: "Literal", value: `\`${trimmed}\``, rawType: "text" };
 }
 
-Type = "text" / "number" / "boolean" / "void" / Identifier
+// --- TYPES & IDENTIFIERS ---
+Type 
+  = "list of " _ t:BaseType { return `list of ${t}`; }
+  / BaseType
+
+BaseType = "text" / "number" / "boolean" / "void" / Identifier
 Identifier = id:$([a-zA-Z_][a-zA-Z0-9_]*) { return id; }
 
 _ "whitespace" = [ \t\n\r]*

@@ -6,10 +6,13 @@ export class HoomanGenerator {
         'void': 'void'
     };
 
-    // A basic Symbol Table to track variables in scope
     private knownVariables = new Set<string>();
 
     private mapType(type: string): string {
+        if (type.startsWith('list of ')) {
+            const base = type.replace('list of ', '').trim();
+            return `${this.typeMap[base] || base}[]`;
+        }
         return this.typeMap[type] || type;
     }
 
@@ -25,87 +28,101 @@ export class HoomanGenerator {
                 return `class ${node.id} {\n${props}\n\n${ctor}\n\n${methods}\n}`;
 
             case 'Constructor':
-                // 1. Register parameters into our known scope
                 node.params.forEach((p: any) => this.knownVariables.add(p.id));
-
                 const ctorParams = node.params.map((p: any) => `${p.id}: ${this.mapType(p.paramType)}`).join(', ');
                 const ctorBody = node.body.map((stmt: any) => `        ${this.generate(stmt)}`).join('\n');
-
-                // 2. Remove parameters from scope once the constructor ends
                 node.params.forEach((p: any) => this.knownVariables.delete(p.id));
-
                 return `    constructor(${ctorParams}) {\n${ctorBody}\n    }`;
 
             case 'FunctionDeclaration':
-                // 1. Register parameters
                 node.params.forEach((p: any) => this.knownVariables.add(p.id));
-
                 const params = node.params.map((p: any) => `${p.id}: ${this.mapType(p.paramType)}`).join(', ');
                 const body = node.body.map((stmt: any) => `        ${this.generate(stmt)}`).join('\n');
                 const retType = node.returnType === 'void' ? '' : `: ${this.mapType(node.returnType)}`;
-
-                // 2. Clean up parameters
                 node.params.forEach((p: any) => this.knownVariables.delete(p.id));
-
                 return `    ${node.id}(${params})${retType} {\n${body}\n    }`;
 
             case 'VariableDeclaration':
-                // Register local/global variables so they aren't treated as strings later
                 this.knownVariables.add(node.id);
+                
+                const isList = node.varType.startsWith('list of ');
+                const mappedType = this.mapType(node.varType);
+                const isClass = !isList && !this.typeMap[node.varType];
 
-                const isClass = !this.typeMap[node.varType];
-                if (isClass) {
-                    const args = node.init ? node.init.map((arg: any) => this.generate(arg)).join(', ') : '';
-                    return `const ${node.id}: ${node.varType} = new ${node.varType}(${args});`;
+                if (isList) {
+                    const arrayArgs = node.init && node.init[0] ? this.generate(node.init[0]) : '[]';
+                    return `let ${node.id}: ${mappedType} = ${arrayArgs};`;
+                } else if (isClass) {
+                    const classArgs = node.init ? node.init.map((arg: any) => this.generate(arg)).join(', ') : '';
+                    return `const ${node.id}: ${node.varType} = new ${node.varType}(${classArgs});`;
                 }
+                
                 const initVal = node.init ? ` = ${this.generate(node.init[0])}` : '';
-                return `let ${node.id}: ${this.mapType(node.varType)}${initVal};`;
+                return `let ${node.id}: ${mappedType}${initVal};`;
 
             case 'Assignment':
-                // Always treat the assignment target physically as code, never as a string fallback
                 const tgtStr = node.target.type === 'Identifier' ? node.target.name : this.generate(node.target);
                 return `${tgtStr} = ${this.generate(node.value)};`;
+
+            case 'ArrayAdd':
+                return `${this.generate(node.target)}.push(${this.generate(node.value)});`;
+
+            case 'ArrayRemove':
+                return `${this.generate(node.target)}.splice(${this.generate(node.index)}, 1);`;
+
+            case 'ArrayAccess':
+                return `${this.generate(node.target)}[${this.generate(node.index)}]`;
+
+            case 'ArrayLength':
+                return `${this.generate(node.target)}.length`;
+
+            case 'LoopStatement':
+                // 1. Scope binding: register loop iterator variable so it evaluates as code
+                this.knownVariables.add(node.iterator);
+
+                const listCode = this.generate(node.list);
+                const loopBody = node.body.map((stmt: any) => `        ${this.generate(stmt)}`).join('\n');
+
+                // 2. Clear scope block binding
+                this.knownVariables.delete(node.iterator);
+
+                return `    for (const ${node.iterator} of ${listCode}) {\n${loopBody}\n    }`;
+
+            case 'ArrayLiteral':
+                const arrayElements = node.elements.map((el: any) => this.generate(el)).join(', ');
+                return `[${arrayElements}]`;
 
             case 'FunctionCall':
                 const args = node.args.map((a: any) => this.generate(a)).join(', ');
                 let callTgt = '';
-                if (node.target.type === 'Identifier') callTgt = node.target.name;
+                if (node.target.type === 'Identifier') callTgt = node.target.name; 
                 else if (node.target.type === 'Path') callTgt = node.target.parts.join('.');
                 else callTgt = this.generate(node.target);
-
+                
                 return `${callTgt}(${args});`;
-
-            case 'Path':
-                return node.parts.join('.');
 
             case 'PrintStatement':
                 let templateString = node.content.map((part: any) => {
                     if (part.type === 'PrintVar') return `\${${this.generate(part.target)}}`;
-
-                    // Remove physical file newlines (\r\n or \n) and any indentation spaces that follow them
                     return part.value.replace(/\r?\n\s*/g, '');
                 }).join('');
-
-                // Trim any stray spaces at the very beginning or end
+                
                 templateString = templateString.trim();
-
-                // If you specifically want to match the comma-separated arguments in dog_expected.ts:
                 if (templateString.includes('\\n')) {
                     const args = templateString.split('\\n').map((s: string) => `\`${s.trim()} \\n\``);
-                    // The last argument shouldn't have a trailing \n
                     args[args.length - 1] = args[args.length - 1].replace(' \\n`', '`');
                     return `console.log(${args.join(', ')});`;
                 }
-
-                // Fallback for normal prints
                 return `console.log(\`${templateString}\`);`;
 
+            case 'Path': 
+                return node.parts.join('.');
+
             case 'Identifier':
-                // "this" should always be treated as code, alongside known variables
                 if (this.knownVariables.has(node.name) || node.name === "this") {
-                    return node.name;
+                    return node.name; 
                 } else {
-                    return `\`${node.name}\``;
+                    return `\`${node.name}\``; 
                 }
 
             case 'Literal':
