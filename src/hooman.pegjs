@@ -10,7 +10,8 @@ Statement
   / PrintStatement
   / ArrayAddStatement      
   / ArrayRemoveStatement   
-  / LoopStatement
+  / LoopStatement          
+  / ConditionalStatement   
 
 // --- CLASSES ---
 ClassDeclaration
@@ -48,11 +49,47 @@ ArrayRemoveStatement
       return { type: "ArrayRemove", target: tgt, index: idx };
     }
 
-// --- LOOPS (NEW) ---
+// --- LOOPS ---
 LoopStatement
   = "loop" _ "<" list:Target ">" _ "as" _ "<" item:Identifier ">" _ "do" _ body:Statement* "end" _ {
       return { type: "LoopStatement", list, iterator: item, body };
     }
+
+// --- CONDITIONALS ---
+ConditionalStatement
+  = "is" _ "<" cond:Condition ">" _ "do" _ body:Statement* "end" _ 
+    elseIfs:ElseIfBlock* fallback:ElseBlock? {
+      return { 
+        type: "ConditionalStatement", 
+        condition: cond, 
+        body: body, 
+        elseIfs: elseIfs, 
+        fallback: fallback 
+      };
+    }
+
+ElseIfBlock
+  = "or" _ "is" _ "<" cond:Condition ">" _ "do" _ body:Statement* "end" _ {
+      return { type: "ElseIfBlock", condition: cond, body: body };
+    }
+
+ElseBlock
+  = "otherwise" _ "do" _ body:Statement* "end" _ {
+      return body;
+    }
+
+Condition
+  = left:Expression _ op:ComparisonOperator _ right:Expression {
+      return { type: "Comparison", left: left, operator: op, right: right };
+    }
+  / expr:Expression {
+      return expr;
+    }
+
+ComparisonOperator
+  = "equal to"     { return "==="; }
+  / "greater than" { return ">"; }
+  / "less than"    { return "<"; }
 
 // --- FUNCTIONS ---
 FunctionDeclaration
@@ -96,28 +133,23 @@ TargetPath
   }
 
 PropertyChain
-  = id:Identifier rest:(_ "<" _ p:PropertyChain _ ">" { return p; })? {
-      return [id].concat(rest || []);
-  }
+  = id:Identifier _ "<" _ p:PropertyChain _ ">" { return [id].concat(p); }
+  / id:Identifier { return [id]; }
 
 // --- ARGUMENT & PARAMETER HELPERS ---
 WithArgs = _ "with" _ "<" args:ArgumentList ">" { return args; }
 WithParams = _ "with" _ "<" params:ParamList ">" { return params; }
 
 ParamList
-  = head:Param tail:ParamTail* { return [head, ...tail]; }
+  = head:Param tail:(_ "," _ p:Param { return p; })* { return [head, ...tail]; }
   / "" { return []; }
-
-ParamTail = _ "," _ param:Param { return param; }
 
 Param
   = t:Type _ "as" _ id:Identifier { return { type: "Parameter", paramType: t, id }; }
 
 ArgumentList
-  = head:ArgumentItem tail:ArgTail* { return [head, ...tail]; }
+  = head:ArgumentItem tail:(_ "," _ item:ArgumentItem { return item; })* { return [head, ...tail]; }
   / "" { return []; }
-
-ArgTail = _ "," _ item:ArgumentItem { return item; }
 
 ArgumentItem
   = "<" expr:Expression ">" { return expr; }
@@ -131,8 +163,12 @@ Expression
   / NumberLiteral
   / BooleanLiteral
   / TargetPath
+  / GroupedExpression   // <--- Links to object structure to satisfy ts-pegjs
   / ArrayLiteral   
   / AnyText       
+
+GroupedExpression
+  = "<" expr:Expression ">" { return { type: "Group", expression: expr }; }
 
 ArrayLength
   = "length" _ "of" _ "<" tgt:Target ">" {

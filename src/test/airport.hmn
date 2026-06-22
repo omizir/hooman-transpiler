@@ -18,8 +18,16 @@ shape
         print <
             Flight: <self<flightnumber>> \n
             From: <self<takeoff>> To: <self<destination>> \n
-            Duration: <self<duration>> \n
+            Duration: <self<duration>>
         >
+        is <self<duration> greater than <4>>
+        do
+            print <Long-haul flight. \n>
+        end
+        otherwise
+        do
+            print <Short-haul flight. \n>
+        end
     end
 
     callable as <setFlightnumber> with <text as fnr>

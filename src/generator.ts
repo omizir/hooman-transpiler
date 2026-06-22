@@ -77,16 +77,33 @@ export class HoomanGenerator {
                 return `${this.generate(node.target)}.length`;
 
             case 'LoopStatement':
-                // 1. Scope binding: register loop iterator variable so it evaluates as code
                 this.knownVariables.add(node.iterator);
-
                 const listCode = this.generate(node.list);
                 const loopBody = node.body.map((stmt: any) => `        ${this.generate(stmt)}`).join('\n');
-
-                // 2. Clear scope block binding
                 this.knownVariables.delete(node.iterator);
-
                 return `    for (const ${node.iterator} of ${listCode}) {\n${loopBody}\n    }`;
+
+            case 'ConditionalStatement':
+                const conditionCode = this.generate(node.condition);
+                const mainBody = node.body.map((stmt: any) => `        ${this.generate(stmt)}`).join('\n');
+                let tsOutput = `    if (${conditionCode}) {\n${mainBody}\n    }`;
+
+                if (node.elseIfs && node.elseIfs.length > 0) {
+                    node.elseIfs.forEach((ei: any) => {
+                        const eiCond = this.generate(ei.condition);
+                        const eiBody = ei.body.map((stmt: any) => `        ${this.generate(stmt)}`).join('\n');
+                        tsOutput += ` else if (${eiCond}) {\n${eiBody}\n    }`;
+                    });
+                }
+
+                if (node.fallback && node.fallback.length > 0) {
+                    const elseBody = node.fallback.map((stmt: any) => `        ${this.generate(stmt)}`).join('\n');
+                    tsOutput += ` else {\n${elseBody}\n    }`;
+                }
+                return tsOutput;
+
+            case 'Comparison':
+                return `${this.generate(node.left)} ${node.operator} ${this.generate(node.right)}`;
 
             case 'ArrayLiteral':
                 const arrayElements = node.elements.map((el: any) => this.generate(el)).join(', ');
@@ -127,6 +144,9 @@ export class HoomanGenerator {
 
             case 'Literal':
                 return node.value;
+                
+            case 'Group':
+                return this.generate(node.expression);
 
             default:
                 throw new Error(`Unknown AST Node Type: ${node.type}`);

@@ -12,7 +12,12 @@ class Flight {
     }
 
     print() {
-        console.log(`Flight: ${this.flightnumber} \n`, `From: ${this.takeoff} To: ${this.destination} \n`, `Duration: ${this.duration} h`);
+        console.log(`Flight: ${this.flightnumber} \n`, `From: ${this.takeoff} To: ${this.destination} \n`, `Duration: ${this.duration}`);
+            if (this.duration > 4) {
+        console.log(`Long-haul flight. \n`, ``);
+    } else {
+        console.log(`Short-haul flight. \n`, ``);
+    }
     }
 
     setFlightnumber(fnr: string) {

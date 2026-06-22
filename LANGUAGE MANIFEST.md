@@ -79,6 +79,40 @@ print <length of <animals>>
 call <animals<pop>>
 ```
 
+# CONDITIONS
+- if statement `is <condition> do ... end`
+- else statement `otherwise do ... end`
+- else if statement `or is <condition> do ... end`
+- comparators:
+    - === `equal to`
+    - \> `greater than`
+    - \< `less than`
+
+Examples:
+```
+is <<duration> greater than <5>>
+do
+    print <Duration is greater than 5>
+end
+or is <<duration> less than <3>>
+do
+    print <Duration is less than 3>
+end
+otherwise
+do
+    print <Duration is 4>
+end
+
+is <<flag> equal to <true>>
+do
+    print <Yes>
+end
+otherwise
+do
+    print <No>
+end
+```
+
 # MISCELLANEOUS
 - console logging `print <text>`
 
