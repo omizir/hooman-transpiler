@@ -73,10 +73,8 @@ shape
     end
 end
 
-create <Flight> as <vieToDbx> with <<F01>, <2>, <CGN>, <VIE>>
-call <vieToDbx<setDuration>> with <<6>>
-call <vieToDbx<setTakeoff>> with  <<VIE>>
-call <vieToDbx<setDestination>> with  <<DBX>>
+create <Flight> as <cgnToVie> with <<F01>, <2>, <CGN>, <VIE>>
+create <Flight> as <vieToDbx> with <<F02>, <6>, <VIE>, <DBX>>
 
-create <Airport> as <viennaAirport> with <<Vienna International Airport>, <<vieToDbx>>>
+create <Airport> as <viennaAirport> with <<Vienna International Airport>, <<vieToDbx>, <cgnToVie>>>
 call <viennaAirport<print>>

@@ -98,7 +98,7 @@ use <*> as <z> from <zod>
 self<name>
 ```
 
-- for ... in loop `loop <array name> as <array item>`
+- for ... of loop `loop <array name> as <array item>`
 
 ```
 loop <animals> as <animal>
