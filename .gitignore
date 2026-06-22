@@ -154,9 +154,6 @@ dist
 # Local History for Visual Studio Code
 .history/
 
-# Built Visual Studio Code Extensions
-*.vsix
-
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
@@ -164,4 +161,4 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode
 /.idea/
-src/.DS_Store
+.DS_Store

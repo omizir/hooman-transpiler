@@ -18,7 +18,7 @@ shape
         print <
             Flight: <self<flightnumber>> \n
             From: <self<takeoff>> To: <self<destination>> \n
-            Duration: <self<duration>> h
+            Duration: <self<duration>> \n
         >
     end
 
