@@ -1,0 +1,203 @@
+{
+  "name": "Hooman Dark",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#0f1117",
+    "editor.foreground": "#cdd6f4",
+    "editorLineNumber.foreground": "#3d4254",
+    "editorCursor.foreground": "#f5a97f",
+    "editor.selectionBackground": "#2a2d3e",
+    "editor.inactiveSelectionBackground": "#1e2030",
+    "editorIndentGuide.background": "#1e2030"
+  },
+  "tokenColors": [
+    {
+      "name": "Comments",
+      "scope": "comment",
+      "settings": {
+        "foreground": "#545c7e",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Block structure: do / end / shape",
+      "scope": "keyword.control.hooman",
+      "settings": {
+        "foreground": "#bb9af7",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Variable declaration: create / store / in",
+      "scope": "keyword.declaration.variable.hooman",
+      "settings": {
+        "foreground": "#7dcfff"
+      }
+    },
+    {
+      "name": "Function keywords: callable / call",
+      "scope": "keyword.declaration.function.hooman",
+      "settings": {
+        "foreground": "#7aa2f7",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Class keywords: template / assemble",
+      "scope": "keyword.declaration.class.hooman",
+      "settings": {
+        "foreground": "#ff9e64",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Loop keyword",
+      "scope": "keyword.control.loop.hooman",
+      "settings": {
+        "foreground": "#bb9af7"
+      }
+    },
+    {
+      "name": "Conditional keywords: is / otherwise",
+      "scope": "keyword.control.conditional.hooman",
+      "settings": {
+        "foreground": "#bb9af7",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Comparison operators: greater than, less than, equals, etc.",
+      "scope": "keyword.operator.comparison.hooman",
+      "settings": {
+        "foreground": "#89ddff",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Connector words: with / as",
+      "scope": "keyword.operator.word.hooman",
+      "settings": {
+        "foreground": "#89ddff",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Import keywords: use / from",
+      "scope": "keyword.control.import.hooman",
+      "settings": {
+        "foreground": "#7dcfff"
+      }
+    },
+    {
+      "name": "Array helper words",
+      "scope": "keyword.operator.array.hooman",
+      "settings": {
+        "foreground": "#89ddff"
+      }
+    },
+    {
+      "name": "Print keyword",
+      "scope": "keyword.other.print.hooman",
+      "settings": {
+        "foreground": "#9ece6a"
+      }
+    },
+    {
+      "name": "Primitive types",
+      "scope": "storage.type.primitive.hooman",
+      "settings": {
+        "foreground": "#2ac3de",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "List type",
+      "scope": "storage.type.list.hooman",
+      "settings": {
+        "foreground": "#2ac3de",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Boolean literals",
+      "scope": "constant.language.boolean.hooman",
+      "settings": {
+        "foreground": "#ff9e64"
+      }
+    },
+    {
+      "name": "Numeric literals",
+      "scope": "constant.numeric.hooman",
+      "settings": {
+        "foreground": "#ff9e64"
+      }
+    },
+    {
+      "name": "Self keyword",
+      "scope": "variable.language.self.hooman",
+      "settings": {
+        "foreground": "#f7768e",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Print string body",
+      "scope": "string.quoted.other.hooman",
+      "settings": {
+        "foreground": "#9ece6a"
+      }
+    },
+    {
+      "name": "String delimiters",
+      "scope": [
+        "punctuation.definition.string.begin.hooman",
+        "punctuation.definition.string.end.hooman"
+      ],
+      "settings": {
+        "foreground": "#9ece6a"
+      }
+    },
+    {
+      "name": "Interpolation punctuation inside strings",
+      "scope": [
+        "punctuation.section.interpolation.begin.hooman",
+        "punctuation.section.interpolation.end.hooman"
+      ],
+      "settings": {
+        "foreground": "#e0af68"
+      }
+    },
+    {
+      "name": "Interpolated variable inside strings",
+      "scope": "variable.other.interpolated.hooman",
+      "settings": {
+        "foreground": "#cdd6f4",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Escape sequences",
+      "scope": "constant.character.escape.hooman",
+      "settings": {
+        "foreground": "#e0af68"
+      }
+    },
+    {
+      "name": "Angle bracket punctuation",
+      "scope": [
+        "punctuation.bracket.angle.begin.hooman",
+        "punctuation.bracket.angle.end.hooman"
+      ],
+      "settings": {
+        "foreground": "#565f89"
+      }
+    },
+    {
+      "name": "Identifiers (variables, names)",
+      "scope": "variable.other.hooman",
+      "settings": {
+        "foreground": "#cdd6f4"
+      }
+    }
+  ]
+}

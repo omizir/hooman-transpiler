@@ -1,0 +1,235 @@
+{
+  "name": "Hooman",
+  "scopeName": "source.hooman",
+  "fileTypes": ["hmn"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#constants" },
+    { "include": "#operators" },
+    { "include": "#self" },
+    { "include": "#print-statement" },
+    { "include": "#use-statement" },
+    { "include": "#angle-bracket-content" }
+  ],
+  "repository": {
+
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.hooman",
+          "match": "//.*$"
+        }
+      ]
+    },
+
+    "keywords": {
+      "patterns": [
+        {
+          "comment": "Block structure keywords",
+          "name": "keyword.control.hooman",
+          "match": "\\b(do|end|shape)\\b"
+        },
+        {
+          "comment": "Conditional keywords",
+          "name": "keyword.control.conditional.hooman",
+          "match": "\\b(is|otherwise)\\b"
+        },
+        {
+          "comment": "Variable declaration",
+          "name": "keyword.declaration.variable.hooman",
+          "match": "\\b(create|store|in)\\b"
+        },
+        {
+          "comment": "Function keywords",
+          "name": "keyword.declaration.function.hooman",
+          "match": "\\b(callable|call)\\b"
+        },
+        {
+          "comment": "Class / template keywords",
+          "name": "keyword.declaration.class.hooman",
+          "match": "\\b(template|assemble)\\b"
+        },
+        {
+          "comment": "Loop keyword",
+          "name": "keyword.control.loop.hooman",
+          "match": "\\b(loop)\\b"
+        },
+        {
+          "comment": "'with' and 'as' parameter connectors",
+          "name": "keyword.operator.word.hooman",
+          "match": "\\b(with|as)\\b"
+        },
+        {
+          "comment": "Import keywords",
+          "name": "keyword.control.import.hooman",
+          "match": "\\b(use|from)\\b"
+        },
+        {
+          "comment": "Array keywords",
+          "name": "keyword.operator.array.hooman",
+          "match": "\\b(add|to|remove|item|of|length)\\b"
+        },
+        {
+          "comment": "Print keyword is handled by the print-statement rule — intentionally omitted here"
+        }
+      ]
+    },
+
+    "types": {
+      "patterns": [
+        {
+          "comment": "Built-in primitive types",
+          "name": "storage.type.primitive.hooman",
+          "match": "\\b(text|number|boolean|void)\\b"
+        },
+        {
+          "comment": "List type prefix",
+          "name": "storage.type.list.hooman",
+          "match": "\\blist\\s+of\\b"
+        }
+      ]
+    },
+
+    "constants": {
+      "patterns": [
+        {
+          "comment": "Boolean literals",
+          "name": "constant.language.boolean.hooman",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "comment": "Numeric literals (standalone, not inside angle brackets)",
+          "name": "constant.numeric.hooman",
+          "match": "(?<![<A-Za-z_])\\b\\d+(\\.\\d+)?\\b(?![>A-Za-z_])"
+        }
+      ]
+    },
+
+    "operators": {
+      "patterns": [
+        {
+          "comment": "Escape sequences inside strings",
+          "name": "constant.character.escape.hooman",
+          "match": "\\\\n|\\\\t|\\\\r|\\\\\\\\"
+        }
+      ]
+    },
+
+    "self": {
+      "patterns": [
+        {
+          "comment": "The 'self' keyword",
+          "name": "variable.language.self.hooman",
+          "match": "\\bself\\b"
+        }
+      ]
+    },
+
+    "print-statement": {
+      "comment": "print <...> — matches 'print' + optional whitespace/newlines + '<', spans until closing '>'. Supports both single-line and multiline prints.",
+      "begin": "(\\bprint\\b)(\\s*<)",
+      "end": ">",
+      "beginCaptures": {
+        "1": { "name": "keyword.other.print.hooman" },
+        "2": { "name": "punctuation.definition.string.begin.hooman" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.string.end.hooman" }
+      },
+      "contentName": "string.quoted.other.hooman",
+      "patterns": [
+        { "include": "#escape-sequences" },
+        { "include": "#interpolated-expression" }
+      ]
+    },
+
+    "escape-sequences": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.hooman",
+          "match": "\\\\[ntr\\\\]"
+        }
+      ]
+    },
+
+    "interpolated-expression": {
+      "comment": "Nested <...> inside a print string — treated as an interpolated variable/expression",
+      "begin": "<",
+      "end": ">",
+      "name": "meta.interpolation.hooman",
+      "beginCaptures": {
+        "0": { "name": "punctuation.section.interpolation.begin.hooman" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.section.interpolation.end.hooman" }
+      },
+      "patterns": [
+        { "include": "#self" },
+        {
+          "name": "variable.other.interpolated.hooman",
+          "match": "[A-Za-z_][A-Za-z0-9_]*"
+        }
+      ]
+    },
+
+    "angle-bracket-content": {
+      "comment": "Generic <identifier> or <number> used everywhere else",
+      "begin": "<",
+      "end": ">",
+      "name": "meta.angle-bracket.hooman",
+      "beginCaptures": {
+        "0": { "name": "punctuation.bracket.angle.begin.hooman" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.bracket.angle.end.hooman" }
+      },
+      "patterns": [
+        { "include": "#constants" },
+        { "include": "#types" },
+        { "include": "#self" },
+        {
+          "comment": "Numeric literal inside brackets",
+          "name": "constant.numeric.hooman",
+          "match": "-?\\d+(\\.\\d+)?"
+        },
+        {
+          "comment": "Boolean literal inside brackets",
+          "name": "constant.language.boolean.hooman",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "comment": "Nested angle brackets (e.g. array literals, method calls like charlie<print>)",
+          "begin": "<",
+          "end": ">",
+          "name": "meta.angle-bracket.nested.hooman",
+          "beginCaptures": {
+            "0": { "name": "punctuation.bracket.angle.begin.hooman" }
+          },
+          "endCaptures": {
+            "0": { "name": "punctuation.bracket.angle.end.hooman" }
+          },
+          "patterns": [
+            { "include": "#constants" },
+            { "include": "#self" },
+            {
+              "name": "variable.other.hooman",
+              "match": "[A-Za-z_][A-Za-z0-9_]*"
+            }
+          ]
+        },
+        {
+          "comment": "Comparison operators used in 'is' conditions",
+          "name": "keyword.operator.comparison.hooman",
+          "match": "\\b(greater than|less than|equals|not equals|greater than or equals|less than or equals)\\b"
+        },
+        {
+          "comment": "Identifier (variable name, function name, class name, etc.)",
+          "name": "variable.other.hooman",
+          "match": "[A-Za-z_][A-Za-z0-9_]*"
+        }
+      ]
+    }
+  }
+}

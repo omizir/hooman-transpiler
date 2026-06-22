@@ -1,0 +1,18 @@
+{
+  "comments": {
+    "lineComment": "//"
+  },
+  "brackets": [
+    ["<", ">"]
+  ],
+  "autoClosingPairs": [
+    { "open": "<", "close": ">" }
+  ],
+  "surroundingPairs": [
+    ["<", ">"]
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "^(shape|do|is)\\s*$",
+    "decreaseIndentPattern": "^\\s*end\\s*$"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "iconDefinitions": {
+    "_hmn": {
+      "iconPath": "./hmn.png"
+    }
+  },
+  "languageIds": {
+    "hooman": "_hmn"
+  },
+  "fileExtensions": {
+    "hmn": "_hmn"
+  }
+}

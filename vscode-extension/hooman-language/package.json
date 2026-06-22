@@ -1,0 +1,56 @@
+{
+  "name": "hooman-language",
+  "displayName": "Hooman Language",
+  "description": "Syntax highlighting for the Hooman scripting language (.hmn)",
+  "version": "1.0.4",
+  "publisher": "hooman",
+  "engines": {
+    "vscode": "^1.79.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "hooman",
+    "hmn",
+    "syntax highlighting"
+  ],
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "hooman",
+        "aliases": [
+          "Hooman",
+          "hooman"
+        ],
+        "extensions": [
+          ".hmn"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./fileicons/hmn.png",
+          "dark": "./fileicons/hmn.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "hooman",
+        "scopeName": "source.hooman",
+        "path": "./syntaxes/hooman.tmLanguage.json"
+      }
+    ],
+    "themes": [
+      {
+        "label": "Hooman Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/hooman-dark-color-theme.json"
+      }
+    ]
+  }
+}
